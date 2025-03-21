@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能结肠辅助诊断系统</title>
+  <style>
+    :root {
+      --primary-blue: #0071e3;
+      --medical-green: #00ff88;
+      --background-gradient: linear-gradient(45deg, #001f3f 0%, #003366 100%);
+    }
+
+    /* 全局重置与基础样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0; /* 去除默认外边距 */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* 设置默认字体 */
+      background: linear-gradient(120deg, #001f3f, #0056b3, #001f3f); /* 渐变背景 */
+      background-size: 300% 300%; /* 背景尺寸 */
+      animation: gradientAnimation 8s ease infinite; /* 渐变动画 */
+      color: #ffffff; /* 白色字体 */
+      line-height: 1.6;
+    }
+
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 专业导航栏 */
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 18px 5%;
+      background: rgba(0, 33, 66, 0.85);
+      backdrop-filter: blur(20px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .navbar h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: color 0.3s, transform 0.3s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--medical-green);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* 主内容区域 */
+    .hero {
+      padding: 160px 5% 100px;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    }
+
+    .hero p {
+      font-size: 1.4rem;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    }
+
+    /* 医疗风格按钮 */
+    .cta-button {
+      background: var(--primary-blue);
+      color: #fff;
+      padding: 1.2rem 3rem;
+      border-radius: 30px;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 24px rgba(0,113,227,0.3);
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0,113,227,0.4);
+    }
+
+    /* 专业医疗动画 */
+    .ecg-animation {
+      width: 600px;
+      height: 300px;
+      margin: 4rem auto;
+      background: rgba(0,0,0,0.15);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .ecg-line {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .ecg-line svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .ecg-path {
+      fill: none;
+      stroke: var(--medical-green);
+      stroke-width: 2;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      animation: draw 4s infinite linear;
+    }
+
+    @keyframes draw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes heartbeat {
+      0% { transform: scaleX(1); }
+      15% { transform: scaleX(1.3); }
+      30% { transform: scaleX(1); }
+      45% { transform: scaleX(1.2); }
+      60% { transform: scaleX(1); }
+      100% { transform: scaleX(1); }
+    }
+
+    /* 关键帧动画 */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 功能区块 */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      padding: 4rem 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.05);
+      padding: 2rem;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <h1>ColoAI</h1>
+    <div class="nav-links">
+      <a href="#features">核心功能</a>
+      <a href="#demo">医疗演示</a>
+      <a href="#contact">联系我们</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <h1>智能结肠辅助诊断系统</h1>
+      <p>基于深度神经网络与多模态医学影像分析的下一代医疗诊断平台</p>
+      <button class="cta-button" onclick="location.href='main.html'">立即体验</button>
+    </section>
+
+    <section id="demo">
+      <div class="ecg-animation">
+        <div class="ecg-line">
+          <svg viewBox="0 0 1200 300" preserveAspectRatio="none">
+            <path class="ecg-path" d="M0,150 L50,150 L70,100 L90,200 L110,150 L130,120 L150,180 L170,150 L190,130 L210,170 L230,150 L250,140 L270,160 L290,150 L310,145 L330,155 L350,150 L370,80 L390,220 L410,150 L430,120 L450,180 L470,150 L490,130 L510,170 L530,150 L550,140 L570,160 L590,150 L610,145 L630,155 L650,150 L670,100 L690,200 L710,150 L730,120 L750,180 L770,150 L790,130 L810,170 L830,150 L850,140 L870,160 L890,150 L910,145 L930,155 L950,150 L970,100 L990,200 L1010,150 L1030,120 L1050,180 L1070,150 L1090,130 L1110,170 L1130,150 L1150,140 L1170,160 L1190,150 L1200,150" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="feature-card">
+        <h3>智能病灶检测</h3>
+        <p>采用ResNet-152架构实现亚毫米级病灶定位</p>
+      </div>
+      <div class="feature-card">
+        <h3>AI辅助诊断</h3>
+        <p>集成GPT-4o生成结构化诊断报告</p>
+      </div>
+      <div class="feature-card">
+        <h3>治疗方案推荐</h3>
+        <p>基于百万级临床案例的个性化建议</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // 页面加载控制
+    window.addEventListener('load', () => {
+      
+      // 初始化动画
+      document.querySelectorAll('.hero h1, .hero p, .cta-button').forEach(el => {
+        el.style.opacity = 1;
+        el.style.transform = 'translateY(0)';
+      });
+    });
+
+    // 导航栏交互
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset;
+      const navbar = document.querySelector('.navbar');
+
+      if (currentScroll > lastScroll && currentScroll > 100) {
+        navbar.style.transform = 'translateY(-100%)';
+      } else {
+        navbar.style.transform = 'translateY(0)';
+      }
+      lastScroll = currentScroll;
+    });
+
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+
+    // 在 JavaScript 中初始化动画
+    document.addEventListener('DOMContentLoaded', () => {
+      const path = document.querySelector('.ecg-path');
+      const length = path.getTotalLength();
+
+      path.style.strokeDasharray = length;
+      path.style.strokeDashoffset = length;
+    });
+    
+  </script>
+</body>
+</html>

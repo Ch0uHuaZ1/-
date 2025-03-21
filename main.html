@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<!-- 声明文档类型为 HTML5 -->
+<html lang="en">
+  <!-- 设置网页使用英文 -->
+<head>
+  <!-- 页头部分 -->
+  <meta charset="UTF-8">
+  <!-- 设置网页字符编码为 UTF-8 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Image Processor with Login</title>
+  <!-- 网页标题 -->
+  <style>
+    /* 内嵌 CSS 样式 */
+
+    /* 全局样式：设置 body 的默认样式 */
+    body {
+      margin: 0; /* 去除默认外边距 */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* 设置默认字体 */
+      background: linear-gradient(120deg, #001f3f, #0056b3, #001f3f); /* 渐变背景 */
+      background-size: 300% 300%; /* 背景尺寸 */
+      animation: gradientAnimation 8s ease infinite; /* 渐变动画 */
+      color: #ffffff; /* 白色字体 */
+      line-height: 1.6;
+    }
+
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 公共容器样式：隐藏所有带 .container 类的元素，并设置透明度及过渡效果 */
+    .container {
+      display: none; /* 初始不显示 */
+      opacity: 0; /* 初始完全透明 */
+      transition: opacity 0.5s ease; /* 设置透明度变化的过渡动画 */
+    }
+
+    /* 当容器具有 active 类时，将显示并渐显 */
+    .active {
+      display: block; /* 显示元素 */
+      opacity: 1; /* 透明度变为 1 */
+    }
+
+    /* 登录界面样式 */
+    #loginContainer {
+      width: 300px;
+      margin: 100px auto;
+      background: rgba(0, 42, 92, 0.9); /* 深蓝色半透明背景 */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      color: #ffffff; /* 白色字体 */
+    }
+    /* 登录界面标题样式 */
+    #loginContainer h2 {
+      margin-bottom: 20px; /* 标题下方留20px空隙 */
+    }
+    #loginContainer input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #0056b3; /* 边框颜色为深蓝色 */
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1); /* 半透明输入框背景 */
+      color: #ffffff; /* 输入框文字颜色为白色 */
+      box-sizing: border-box;
+    }
+    #loginContainer input::placeholder {
+      color: #d1d1d1; /* 输入框占位符颜色为浅灰色 */
+    }
+
+    #loginContainer button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      background: #007bff; /* 按钮蓝色 */
+      color: #ffffff;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    #loginContainer button:hover {
+      background: #0056b3; /* 按钮悬停深蓝色 */
+      transform: scale(1.02);
+    }
+
+    /* 主界面样式 */
+    #mainContainer {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(0, 42, 92, 0.9); /* 深蓝色半透明背景 */
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      color: #ffffff; /* 白色字体 */
+    }
+    /* 主界面标题样式 */
+    #mainContainer h1 {
+      text-align: center; /* 标题居中 */
+      margin-bottom: 20px; /* 下方空隙20px */
+    }
+    /* 定义一行容器，使用 flex 布局 */
+    .row {
+      display: flex; /* 启用 flex 布局 */
+      justify-content: space-around; /* 项目平均分布 */
+      margin-bottom: 20px; /* 行底部空隙20px */
+    }
+    /* 图片容器样式 */
+    .image-container {
+      width: 350px;
+      height: 350px;
+      background-color: rgba(255, 255, 255, 0.1); /* 半透明浅色背景 */
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    /* 图片容器悬停时略微放大 */
+    .image-container:hover {
+      transform: scale(1.02);
+    }
+    /* 占位符样式：用于图片未加载时的提示 */
+    .placeholder {
+      width: 100%; /* 占满容器宽度 */
+      height: 100%; /* 占满容器高度 */
+      display: flex; /* 启用 flex 布局 */
+      flex-direction: column; /* 垂直排列 */
+      align-items: center; /* 子项水平居中 */
+      justify-content: center; /* 子项垂直居中 */
+      color: #777; /* 字体颜色为灰色 */
+    }
+    /* 占位符中加号图标的样式 */
+    .placeholder .plus-icon {
+      font-size: 48px; /* 字体大小48px */
+      font-weight: bold; /* 加粗 */
+      margin-bottom: 10px; /* 下方空隙10px */
+    }
+    /* 图片标签样式 */
+    img {
+      width: 100%; /* 图片宽度占满容器 */
+      height: 100%; /* 图片高度占满容器 */
+      object-fit: cover; /* 保持比例裁剪填充容器 */
+      display: block; /* 块级元素显示 */
+    }
+    /* 隐藏元素的类 */
+    .hidden {
+      display: none;
+    }
+    /* 控制区域样式 */
+    .controls {
+      margin-bottom: 20px; /* 底部空隙20px */
+    }
+    .controls label {
+      display: block; /* 标签以块级元素显示 */
+      margin-bottom: 5px; /* 下方空隙5px */
+    }
+    .controls input[type="range"] {
+      width: 100%; /* 滑动条占满容器 */
+    }
+    /* 处理图片按钮样式 */
+    #processBtn {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007bff; /* 按钮蓝色 */
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+      margin-top: 10px;
+    }
+    /* 按钮悬停效果 */
+    #processBtn:hover {
+      background-color: #0056b3; /* 按钮悬停深蓝色 */
+      transform: scale(1.02);
+    }
+    /* 进度加载动画：定义转圈动画 */
+    @keyframes spin {
+      from { transform: rotate(0deg); } /* 初始角度0度 */
+      to { transform: rotate(360deg); } /* 最终旋转360度 */
+    }
+    /* spinner 样式，用于显示加载动画 */
+    .spinner {
+      border: 8px solid #f3f3f3; /* 边框颜色 */
+      border-top: 8px solid #3498db; /* 顶部边框颜色 */
+      border-radius: 50%; /* 圆形 */
+      width: 50px; /* 宽50px */
+      height: 50px; /* 高50px */
+      animation: spin 1s linear infinite; /* 应用转圈动画 */
+      margin: 20px auto; /* 上下边距20px，左右自动居中 */
+    }
+    /* 进度区域样式 */
+    #progress {
+      text-align: center; /* 文字居中 */
+      margin-bottom: 20px; /* 底部空隙20px */
+    }
+    /* 结果总结区域样式 */
+    #resultText {
+      background-color: rgba(255, 255, 255, 0.1); /* 半透明浅色背景 */
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      color: #ffffff; /* 白色字体 */
+    }
+  </style>
+</head>
+<body>
+  <!-- 登录界面容器 -->
+  <div id="loginContainer" class="container active">
+    <!-- 使用 active 类使其初始显示 -->
+    <h2>Login</h2>
+    <!-- 登录标题 -->
+    <input type="text" id="loginUsername" placeholder="Username">
+    <!-- 用户名输入框，placeholder 显示提示 -->
+    <input type="password" id="loginPassword" placeholder="Password">
+    <!-- 密码输入框 -->
+    <button id="loginBtn">Login</button>
+    <!-- 登录按钮 -->
+  </div>
+
+  <!-- 主界面容器 -->
+  <div id="mainContainer" class="container">
+    <h1>AI Image Processor</h1>
+    <!-- 主界面标题 -->
+    <div class="row">
+      <!-- 一行区域，左右两个图片区域 -->
+      <!-- 原始图片区域 -->
+      <div id="originalContainer" class="image-container">
+        <!-- 占位符：显示加号和提示文字 -->
+        <div id="originalPlaceholder" class="placeholder">
+          <div class="plus-icon">+</div>
+          <p>点击加载图片</p>
+        </div>
+        <!-- 用于显示加载后的原始图片，初始隐藏 -->
+        <img id="originalImage" src="" alt="Original" class="hidden">
+        <!-- 隐藏的文件选择控件，用于载入图片 -->
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+      </div>
+      <!-- 结果图片区域 -->
+      <div id="resultContainer" class="image-container">
+        <!-- 占位符：提示结果会显示在此 -->
+        <div id="resultPlaceholder" class="placeholder">
+          <p>结果将显示在这里</p>
+        </div>
+        <!-- 用于显示处理后的图片，初始隐藏 -->
+        <img id="resultImage" src="" alt="Result" class="hidden">
+      </div>
+    </div>
+    <!-- 控制区：识别率滑动条和处理按钮 -->
+    <div class="controls">
+      <label for="recognitionRate">
+        识别率: <span id="rateValue">50</span>%
+        <!-- 显示当前识别率数值 -->
+      </label>
+      <input type="range" id="recognitionRate" min="0" max="100" value="50">
+      <!-- 滑动条，用于调整识别率 -->
+      <button id="processBtn">处理图片</button>
+      <!-- 处理图片按钮 -->
+    </div>
+    <!-- 进度显示区域（初始隐藏） -->
+    <div id="progress" class="hidden">
+      <div class="spinner"></div>
+      <!-- 加载动画 -->
+      <p>处理中，请稍候...</p>
+    </div>
+    <!-- 结果总结区域（初始隐藏） -->
+    <div id="resultText" class="hidden">
+      <h2>识别总结</h2>
+      <!-- 总结标题 -->
+      <ol id="summaryList">
+        <!-- 生成的总结项将插入此处 -->
+      </ol>
+    </div>
+  </div>
+
+  <!-- JavaScript 部分 -->
+  <script>
+    // 登录部分事件绑定
+    document.getElementById('loginBtn').addEventListener('click', function(){
+      // 获取用户名和密码输入值
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      // 判断用户名和密码是否正确
+      if(username === 'admin' && password === '123456'){
+         // 登录成功：隐藏登录界面，显示主界面
+         document.getElementById('loginContainer').classList.remove('active');
+         document.getElementById('mainContainer').classList.add('active');
+      } else {
+         // 登录失败：弹出提示
+         alert('Invalid username or password!');
+      }
+    });
+
+    // 主界面相关变量绑定
+    const fileInput = document.getElementById('fileInput'); // 文件选择控件
+    const originalContainer = document.getElementById('originalContainer'); // 原始图片区域
+    const originalPlaceholder = document.getElementById('originalPlaceholder'); // 原始图片占位符
+    const originalImage = document.getElementById('originalImage'); // 显示原始图片的 <img>
+    const resultContainer = document.getElementById('resultContainer'); // 结果图片区域
+    const resultPlaceholder = document.getElementById('resultPlaceholder'); // 结果图片占位符
+    const resultImage = document.getElementById('resultImage'); // 显示结果图片的 <img>
+    const processBtn = document.getElementById('processBtn'); // 处理图片按钮
+    const progress = document.getElementById('progress'); // 进度显示区域
+    const resultText = document.getElementById('resultText'); // 结果总结区域
+    const summaryList = document.getElementById('summaryList'); // 总结列表
+    const recognitionRate = document.getElementById('recognitionRate'); // 识别率滑动条
+    const rateValue = document.getElementById('rateValue'); // 显示识别率数值
+
+    // 监听识别率滑动条变化，实时更新显示的百分比
+    recognitionRate.addEventListener('input', function() {
+      rateValue.textContent = recognitionRate.value;
+    });
+
+    // 点击原始图片区域，触发文件选择对话框
+    originalContainer.addEventListener('click', function() {
+      fileInput.click();
+    });
+
+    // 当用户选择图片后，使用 FileReader 加载图片
+    fileInput.addEventListener('change', function() {
+      const file = this.files[0]; // 获取第一个选择的文件
+      if(file) {
+        const reader = new FileReader(); // 创建文件读取对象
+        reader.onload = function(e) {
+          // 读取完成后，将图片数据设置为原始图片的 src
+          originalImage.src = e.target.result;
+          originalImage.classList.remove('hidden'); // 显示图片
+          originalPlaceholder.classList.add('hidden'); // 隐藏占位符
+        }
+        reader.readAsDataURL(file); // 以 Data URL 格式读取图片文件
+      }
+    });
+
+    // 点击处理图片按钮事件
+    processBtn.addEventListener('click', function() {
+      // 如果没有加载图片，则提示用户
+      if(originalImage.src === "") {
+        alert("请先加载图片！");
+        return;
+      }
+      // 显示进度加载动画
+      progress.classList.remove('hidden');
+      // 隐藏结果总结区域
+      resultText.classList.add('hidden');
+      // 模拟算法处理，设置2秒延时后调用 processImage 函数
+      setTimeout(function() {
+        processImage();
+      }, 2000);
+    });
+
+    // 模拟图片处理函数：使用 canvas 进行简单的颜色反转处理
+    function processImage() {
+      const canvas = document.createElement('canvas'); // 创建 canvas 元素
+      const ctx = canvas.getContext('2d'); // 获取 2D 绘图上下文
+      const img = new Image(); // 创建 Image 对象
+      img.onload = function() {
+        // 设置 canvas 宽高与图片相同
+        canvas.width = img.width;
+        canvas.height = img.height;
+        // 将图片绘制到 canvas 上
+        ctx.drawImage(img, 0, 0);
+        // 获取绘制后的图像数据
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        // 遍历每个像素，进行颜色反转处理
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = 255 - data[i];       // 红色分量反转
+          data[i+1] = 255 - data[i+1];     // 绿色分量反转
+          data[i+2] = 255 - data[i+2];     // 蓝色分量反转
+          // alpha 通道保持不变
+        }
+        // 将处理后的图像数据写回 canvas
+        ctx.putImageData(imageData, 0, 0);
+        // 获取处理后图片的 Data URL
+        const resultURL = canvas.toDataURL();
+        // 将结果图片显示到结果区域
+        resultImage.src = resultURL;
+        resultImage.classList.remove('hidden');
+        resultPlaceholder.classList.add('hidden');
+        // 模拟调用 AI API 获取总结
+        simulateAPICall();
+      }
+      // 设置图片源为原始图片的 src，触发 onload 事件
+      img.src = originalImage.src;
+    }
+
+    // 模拟调用 AI API 获取总结的函数
+    function simulateAPICall() {
+      // 显示进度动画
+      progress.classList.remove('hidden');
+      // 模拟 2 秒延时后返回结果
+      setTimeout(function() {
+        progress.classList.add('hidden'); // 隐藏进度动画
+        summaryList.innerHTML = ""; // 清空总结列表
+        // 构造模拟总结内容，包含识别率信息
+        const summaries = [
+          " 图片中检测到主要对象。",
+          " 识别率设置为 " + recognitionRate.value + "%。",
+          " 边缘和颜色特征清晰。",
+          " 图像质量较好。"
+        ];
+        // 遍历每条总结，创建列表项并添加到总结列表中
+        summaries.forEach(function(text) {
+          const li = document.createElement('li');
+          li.textContent = text;
+          summaryList.appendChild(li);
+        });
+        // 显示结果总结区域
+        resultText.classList.remove('hidden');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
