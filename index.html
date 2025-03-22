@@ -133,71 +133,6 @@
       box-shadow: 0 12px 32px rgba(0,113,227,0.4);
     }
 
-    /* 专业医疗动画 */
-    .ecg-animation {
-      width: 600px;
-      height: 300px;
-      margin: 4rem auto;
-      background: rgba(0,0,0,0.15);
-      border-radius: 16px;
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.1);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .ecg-line {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .ecg-line svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .ecg-path {
-      fill: none;
-      stroke: var(--medical-green);
-      stroke-width: 2;
-      stroke-linejoin: round;
-      stroke-linecap: round;
-      animation: draw 4s infinite linear;
-    }
-
-    @keyframes draw {
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
-
-    @keyframes heartbeat {
-      0% { transform: scaleX(1); }
-      15% { transform: scaleX(1.3); }
-      30% { transform: scaleX(1); }
-      45% { transform: scaleX(1.2); }
-      60% { transform: scaleX(1); }
-      100% { transform: scaleX(1); }
-    }
-
-    /* 关键帧动画 */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     /* 功能区块 */
     .features {
       display: grid;
@@ -221,6 +156,30 @@
       transform: translateY(-8px);
       box-shadow: 0 12px 24px rgba(0,0,0,0.2);
     }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: #ffffff;
+    }
+
+    .section-title-spaced {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-top: 4rem;
+      margin-bottom: 2rem;
+      color: #ffffff;
+    }
+
+    .demo-image {
+      display: block;
+      margin: 2rem auto;
+      max-width: 50%; /* 调整图片的最大宽度 */
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
   </style>
 </head>
 <body>
@@ -234,35 +193,34 @@
   </nav>
 
   <main>
-    <section class="hero">
+    <section class="hero" id="hero">
       <h1>智能结肠辅助诊断系统</h1>
       <p>基于深度神经网络与多模态医学影像分析的下一代医疗诊断平台</p>
       <button class="cta-button" onclick="location.href='main.html'">立即体验</button>
     </section>
 
-    <section id="demo">
-      <div class="ecg-animation">
-        <div class="ecg-line">
-          <svg viewBox="0 0 1200 300" preserveAspectRatio="none">
-            <path class="ecg-path" d="M0,150 L50,150 L70,100 L90,200 L110,150 L130,120 L150,180 L170,150 L190,130 L210,170 L230,150 L250,140 L270,160 L290,150 L310,145 L330,155 L350,150 L370,80 L390,220 L410,150 L430,120 L450,180 L470,150 L490,130 L510,170 L530,150 L550,140 L570,160 L590,150 L610,145 L630,155 L650,150 L670,100 L690,200 L710,150 L730,120 L750,180 L770,150 L790,130 L810,170 L830,150 L850,140 L870,160 L890,150 L910,145 L930,155 L950,150 L970,100 L990,200 L1010,150 L1030,120 L1050,180 L1070,150 L1090,130 L1110,170 L1130,150 L1150,140 L1170,160 L1190,150 L1200,150" />
-          </svg>
+    <section id="features">
+      <h2 class="section-title">核心功能</h2>
+      <div class="features">
+        <div class="feature-card">
+          <h3>智能病灶检测</h3>
+          <p>采用ResNet-152架构实现亚毫米级病灶定位</p>
+        </div>
+        <div class="feature-card">
+          <h3>AI辅助诊断</h3>
+          <p>集成GPT-4o生成结构化诊断报告</p>
+        </div>
+        <div class="feature-card">
+          <h3>治疗方案推荐</h3>
+          <p>基于百万级临床案例的个性化建议</p>
         </div>
       </div>
     </section>
 
-    <section class="features" id="features">
-      <div class="feature-card">
-        <h3>智能病灶检测</h3>
-        <p>采用ResNet-152架构实现亚毫米级病灶定位</p>
-      </div>
-      <div class="feature-card">
-        <h3>AI辅助诊断</h3>
-        <p>集成GPT-4o生成结构化诊断报告</p>
-      </div>
-      <div class="feature-card">
-        <h3>治疗方案推荐</h3>
-        <p>基于百万级临床案例的个性化建议</p>
-      </div>
+    <section id="contact">
+      <h2 class="section-title-spaced">医疗演示</h2>
+      <img src="C:\Users\tianj\Desktop\幻灯片1(1).png" alt="医疗演示图片" class="demo-image">
+      <!-- 这里可以添加更多内容 -->
     </section>
   </main>
 
@@ -300,16 +258,6 @@
         });
       });
     });
-
-    // 在 JavaScript 中初始化动画
-    document.addEventListener('DOMContentLoaded', () => {
-      const path = document.querySelector('.ecg-path');
-      const length = path.getTotalLength();
-
-      path.style.strokeDasharray = length;
-      path.style.strokeDashoffset = length;
-    });
-    
   </script>
 </body>
 </html>
