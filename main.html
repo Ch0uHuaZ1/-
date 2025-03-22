@@ -254,12 +254,6 @@
     </div>
     <!-- 控制区：识别率滑动条和处理按钮 -->
     <div class="controls">
-      <label for="recognitionRate">
-        识别率: <span id="rateValue">50</span>%
-        <!-- 显示当前识别率数值 -->
-      </label>
-      <input type="range" id="recognitionRate" min="0" max="100" value="50">
-      <!-- 滑动条，用于调整识别率 -->
       <button id="processBtn">处理图片</button>
       <!-- 处理图片按钮 -->
     </div>
@@ -309,13 +303,6 @@
     const progress = document.getElementById('progress'); // 进度显示区域
     const resultText = document.getElementById('resultText'); // 结果总结区域
     const summaryList = document.getElementById('summaryList'); // 总结列表
-    const recognitionRate = document.getElementById('recognitionRate'); // 识别率滑动条
-    const rateValue = document.getElementById('rateValue'); // 显示识别率数值
-
-    // 监听识别率滑动条变化，实时更新显示的百分比
-    recognitionRate.addEventListener('input', function() {
-      rateValue.textContent = recognitionRate.value;
-    });
 
     // 点击原始图片区域，触发文件选择对话框
     originalContainer.addEventListener('click', function() {
@@ -350,70 +337,80 @@
       resultText.classList.add('hidden');
       // 模拟算法处理，设置2秒延时后调用 processImage 函数
       setTimeout(function() {
-        processImage();
+        processImageWithGPT4Vision();
       }, 2000);
     });
 
-    // 模拟图片处理函数：使用 canvas 进行简单的颜色反转处理
-    function processImage() {
-      const canvas = document.createElement('canvas'); // 创建 canvas 元素
-      const ctx = canvas.getContext('2d'); // 获取 2D 绘图上下文
-      const img = new Image(); // 创建 Image 对象
-      img.onload = function() {
-        // 设置 canvas 宽高与图片相同
-        canvas.width = img.width;
-        canvas.height = img.height;
-        // 将图片绘制到 canvas 上
-        ctx.drawImage(img, 0, 0);
-        // 获取绘制后的图像数据
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        // 遍历每个像素，进行颜色反转处理
-        for (let i = 0; i < data.length; i += 4) {
-          data[i] = 255 - data[i];       // 红色分量反转
-          data[i+1] = 255 - data[i+1];     // 绿色分量反转
-          data[i+2] = 255 - data[i+2];     // 蓝色分量反转
-          // alpha 通道保持不变
+    async function processImageWithGPT4Vision() {
+      const apiKey = 'sk-xQaLeySgUyGffYZK570fD31291B2417dA2C821Db7d416bC5'; // 请替换为有效的API密钥
+      const apiUrl = 'https://api.gptapi.us/v1/chat/completions';
+
+      const imgData = originalImage.src.split(',')[1]; // 获取Base64编码的图片数据
+
+      console.log('Sending image data to API...');
+      console.log('Image data:', imgData);
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4-vision-preview',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a helpful assistant that processes images.'
+              },
+              {
+                role: 'user',
+                content: `data:image/png;base64,${imgData}`
+              }
+            ]
+          })
+        });
+
+        console.log('API response status:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API response error:', errorText);
+          throw new Error('Network response was not ok');
         }
-        // 将处理后的图像数据写回 canvas
-        ctx.putImageData(imageData, 0, 0);
-        // 获取处理后图片的 Data URL
-        const resultURL = canvas.toDataURL();
-        // 将结果图片显示到结果区域
-        resultImage.src = resultURL;
-        resultImage.classList.remove('hidden');
-        resultPlaceholder.classList.add('hidden');
-        // 模拟调用 AI API 获取总结
-        simulateAPICall();
+
+        const result = await response.json();
+        console.log('API response result:', result);
+        displayResult(result);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('图像处理失败，请稍后再试。');
+      } finally {
+        progress.classList.add('hidden');
       }
-      // 设置图片源为原始图片的 src，触发 onload 事件
-      img.src = originalImage.src;
     }
 
-    // 模拟调用 AI API 获取总结的函数
-    function simulateAPICall() {
-      // 显示进度动画
-      progress.classList.remove('hidden');
-      // 模拟 2 秒延时后返回结果
-      setTimeout(function() {
-        progress.classList.add('hidden'); // 隐藏进度动画
-        summaryList.innerHTML = ""; // 清空总结列表
-        // 构造模拟总结内容，包含识别率信息
-        const summaries = [
-          " 图片中检测到主要对象。",
-          " 识别率设置为 " + recognitionRate.value + "%。",
-          " 边缘和颜色特征清晰。",
-          " 图像质量较好。"
-        ];
-        // 遍历每条总结，创建列表项并添加到总结列表中
+    function displayResult(result) {
+      if (result.choices && result.choices[0].message.content) {
+        const content = result.choices[0].message.content;
+        const processedImage = content.match(/data:image\/png;base64,[^\s]+/)[0];
+        resultImage.src = processedImage;
+        resultImage.classList.remove('hidden');
+        resultPlaceholder.classList.add('hidden');
+
+        const summaries = content.match(/Summary: (.*)/)[1].split(';');
+        summaryList.innerHTML = "";
         summaries.forEach(function(text) {
           const li = document.createElement('li');
           li.textContent = text;
           summaryList.appendChild(li);
         });
-        // 显示结果总结区域
         resultText.classList.remove('hidden');
-      }, 2000);
+      } else {
+        console.error('No processed image in the result:', result);
+        alert('图像处理失败，请稍后再试。');
+      }
     }
   </script>
 </body>
